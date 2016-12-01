@@ -1,0 +1,3 @@
+<launch>
+  <rosparam file="$(find rags_ros)/graph_config.yaml" command="load"/>
+</launch>

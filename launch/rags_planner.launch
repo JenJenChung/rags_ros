@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="rags_ros" type="rags_planner" respawn="false" name="rags_planner" output="screen"/>
+</launch>
