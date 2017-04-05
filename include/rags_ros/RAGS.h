@@ -1,6 +1,17 @@
 #ifndef RAGS_H_
 #define RAGS_H_
 
+#ifndef PTHRESH
+#define PTHRESH 0.60
+#endif
+
+enum searchType {ASTAR, DIJKSTRA} ; // BREADTH, DEPTH
+enum heuristic {ZERO, MANHATTAN, EUCLIDEAN, RAGSCOMPARE} ;
+enum pathOut {BEST,ALL} ;
+
+searchType SEARCH_TYPE = ASTAR ;
+heuristic HEURISTIC = ZERO ;
+
 #include <iostream> // std::cout
 #include <vector> // std::vector
 #include <algorithm> // std::sort

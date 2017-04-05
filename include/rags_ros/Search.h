@@ -15,20 +15,12 @@ using std::cout ;
 
 typedef unsigned long int ULONG ;
 
-//typedef unsigned long int ULONG ;
-enum searchType {ASTAR, DIJKSTRA} ; // BREADTH, DEPTH
-enum heuristic {ZERO, MANHATTAN, EUCLIDEAN} ;
-enum pathOut {BEST,ALL} ;
-
 // Path search class to store and search a graph
 // A* search with zero, Manhattan or Euclidean distance heuristics
 class Search
 {
 	public:
-		Search(Graph * graph, Vertex * source, Vertex * goal):itsGraph(graph), itsSource(source), itsGoal(goal){
-	  	SEARCH_TYPE = ASTAR ;
-	  	HEURISTIC = ZERO ;
-  	}
+		Search(Graph * graph, Vertex * source, Vertex * goal):itsGraph(graph), itsSource(source), itsGoal(goal){}
 
 		~Search(){
 	    delete itsQueue ;
@@ -47,8 +39,6 @@ class Search
 		Queue * itsQueue ;
 		Vertex * itsSource ;
 		Vertex * itsGoal ;
-		searchType SEARCH_TYPE ;
-		heuristic HEURISTIC ;
 		
 		ULONG FindSourceID() ;
 		double ManhattanDistance(Vertex * v1, Vertex * v2) ;
@@ -59,12 +49,9 @@ class Search
 vector<Node *> Search::PathSearch(pathOut pType)
 {
   ULONG sourceID = FindSourceID() ;
-  itsQueue = new Queue(new Node(itsGraph->GetVertices()[sourceID], SOURCE)) ;
+  itsQueue = new Queue(new Node(itsGraph->GetVertices()[sourceID], SOURCE),pType) ;
 
-  clock_t t_start = clock() ;
-  double t_elapse = 0.0 ;
-
-  while (!itsQueue->EmptyQueue() && t_elapse < 5.0){
+  while (!itsQueue->EmptyQueue()){
     // Pop cheapest node from queue
     Node * currentNode = itsQueue->PopQueue() ;
     if (!currentNode){
@@ -73,40 +60,24 @@ vector<Node *> Search::PathSearch(pathOut pType)
   	}
 
     // Terminate search once one path is found
-    if (pType == BEST)
-	    if (currentNode->GetVertex() == itsGoal)
+    if (currentNode->GetVertex() == itsGoal){
+      if (pType == BEST)
 		    break ;
+	    else
+	      continue ;
+    }
 
     // Find all neighbours excluding ancestor vertices if any
     vector<Edge *> neighbours = itsGraph->GetNeighbours(currentNode) ;
 
     // Update neighbours
     for (ULONG i = 0; i < (ULONG)neighbours.size(); i++){
-	    // Check if neighbour vertex is already in closed set
-	    bool newNeighbour = true ;
-	    if (pType == BEST){
-		    Vertex * vcheck = neighbours[i]->GetVertex2() ;
-		    for (ULONG j = 0; j < itsQueue->GetClosed().size(); j++){
-			    if (itsQueue->GetClosed()[j]->GetVertex() == vcheck){
-				    newNeighbour = false ;
-				    break ;
-			    }
-		    }
-	    }
-	
-	    if (newNeighbour){
-		    // Create neighbour node
-		    Node * currentNeighbour = new Node(currentNode, neighbours[i]) ;
-		    UpdateNode(currentNeighbour) ;
-		    itsQueue->UpdateQueue(currentNeighbour) ;
-	    }
+	    // Create neighbour node
+	    Node * currentNeighbour = new Node(currentNode, neighbours[i]) ;
+	    UpdateNode(currentNeighbour) ;
+	    itsQueue->UpdateQueue(currentNeighbour) ;
     }
-
-    t_elapse = (float)(clock() - t_start)/CLOCKS_PER_SEC ;
   }
-
-	if (t_elapse >= 5.0)
-		cout << "Search timed out!\n" ;
 	
   // Check if a path is found
   bool ClosedAll = false ;
@@ -170,10 +141,6 @@ void Search::UpdateNode(Node * n)
     double diff ;
     switch (HEURISTIC)
     {
-	    case ZERO:
-		    diff = 0.0 ;
-		    n->SetHeuristic(diff) ;
-		    break ;
 	    case MANHATTAN:
 		    diff = ManhattanDistance(itsGoal, n->GetVertex()) ;
 		    n->SetHeuristic(diff) ;
@@ -182,6 +149,9 @@ void Search::UpdateNode(Node * n)
 		    diff = EuclideanDistance(itsGoal, n->GetVertex()) ;
 		    n->SetHeuristic(diff) ;
 		    break ;
+	    default:
+	      diff = 0.0 ;
+		    n->SetHeuristic(diff) ;
     }
   }
   else if (SEARCH_TYPE == DIJKSTRA)

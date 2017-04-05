@@ -3,21 +3,54 @@
 
 #include <vector> // std::vector
 #include <queue> // std::priority_queue
+#include <boost/math/special_functions/erf.hpp> // erf_inv
 #include "Node.h"
-#include "CompareNode.h"
 
+using namespace boost::math ; // erf_inv
 using std::vector ;
 using std::priority_queue ;
 
 typedef unsigned long int ULONG ;
+
+#ifndef PTHRESH
+#define PTHRESH 0.50
+#endif
+
+double pthresh = 0.5 ;
+heuristic COMPARE = RAGSCOMPARE ;
+
+class CompareNode{
+  double eConst ;
+  public:
+    CompareNode(){eConst = erf_inv(1.0-2.0*pthresh) ;}
+    ~CompareNode(){}
+    bool operator() (const Node * n1, const Node * n2) const{
+      if (COMPARE == RAGSCOMPARE){
+        double n1Cost = n1->GetMeanCost() ;
+        double n2Cost = n2->GetMeanCost() ;
+        double thresh = n1Cost + sqrt(2.0)*sqrt(pow(n1->GetVarCost(),2) + pow(n2->GetVarCost(),2))*eConst ;
+        return (n2Cost < thresh) ;
+      }
+      else{
+        double n1Cost = n1->GetMeanCost()+n1->GetHeuristic() ;
+        double n2Cost = n2->GetMeanCost()+n2->GetHeuristic() ;
+        return (n2Cost < n1Cost) ;
+      }
+    }
+} ;
 
 // Custom queue type to perform priority queue updates
 class Queue
 {
 	public:
   	typedef priority_queue<Node *, vector<Node *>, CompareNode> QUEUE ;
-		Queue(Node * source){
+		Queue(Node * source, pathOut pType){
+		  if (pType == ALL)
+		    pthresh = PTHRESH ;
+	    else
+	      COMPARE = HEURISTIC ;
 	    itsPQ = new QUEUE ;
+      eConst = erf_inv(1.0-2.0*pthresh) ;
 	    itsPQ->push(source) ;
     }
     
@@ -45,6 +78,7 @@ class Queue
 	private:
 		QUEUE * itsPQ ;
 		vector<Node *> closed ;
+		double eConst ;
 		
 		bool CompareNodes(const Node * n1, const Node * n2) const ;
 } ;
@@ -91,16 +125,18 @@ Node * Queue::PopQueue()
 
 bool Queue::CompareNodes(const Node * n1, const Node * n2) const
 {
-	// out: Is n1 worse than or equal to n2?
+	// out: Is n1 worse than or equal to n2? Does n2 dominate n1?
   double n1Cost = n1->GetMeanCost() ;
   double n2Cost = n2->GetMeanCost() ;
-  return (n1Cost >= n2Cost && n1->GetVarCost() >= n2->GetVarCost()) ;
+//  return (n1Cost >= n2Cost && n1->GetVarCost() >= n2->GetVarCost()) ; // old domination metric
   /*	if (n1Cost > n2Cost && n1->GetVarCost() > n2->GetVarCost())
     return true ;
   else if (n2Cost > n1Cost && n2->GetVarCost() > n1->GetVarCost())
     return false ;
   else
     return (n1Cost > n2Cost) ;*/
+  double thresh = n1Cost + sqrt(2.0)*sqrt(pow(n1->GetVarCost(),2) + pow(n2->GetVarCost(),2))*eConst ;
+  return (n2Cost < thresh) ; // does n2 dominate n1?
 }
 
 #endif //QUEUE_H_
