@@ -53,3 +53,7 @@ add_dependencies(edge_cost_publisher ${catkin_EXPORTED_TARGETS})
 add_executable(speed_regulator src/speed_regulator.cpp)
 target_link_libraries(speed_regulator ${catkin_LIBRARIES})
 add_dependencies(speed_regulator ${catkin_EXPORTED_TARGETS})
+
+add_executable(rags_planner_dji src/rags_planner_dji.cpp)
+target_link_libraries(rags_planner_dji ${catkin_LIBRARIES})
+add_dependencies(rags_planner_dji ${catkin_EXPORTED_TARGETS})

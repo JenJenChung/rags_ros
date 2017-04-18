@@ -1,0 +1,4 @@
+<launch>
+  <rosparam file="$(find rags_ros)/graph_config_dji.yaml" command="load"/>
+  <node pkg="rags_ros" type="rags_planner_dji" respawn="false" name="rags_planner_dji" output="screen"/>
+</launch>

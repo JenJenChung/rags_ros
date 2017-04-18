@@ -6,4 +6,4 @@ Terminal 2
 $ rosrun rags_ros edge_cost_publisher
 
 Terminal 3
-rostopic pub -1 /pioneer1/global_goal_index std_msgs/Int16 '{data: 24}'
+$ rostopic pub -1 /pioneer1/global_goal_index std_msgs/Int16 '{data: 24}'

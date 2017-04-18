@@ -327,6 +327,6 @@ int RagsRos::GetEdgeIndex(XY s, XY g){
 		if (edges[i].first == startID && edges[i].second == goalID)
 			return i ;
 	}
-	ROS_INFO_STREAM("Error: Did not find edge index for (" << startID << "," << goalID << "). Exiting.") ;
+	ROS_INFO_STREAM("ERROR: Did not find edge index for (" << startID << "," << goalID << "). Exiting.") ;
 	exit(1) ;
 }
