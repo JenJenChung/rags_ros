@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   message_generation
   std_msgs
+  custom_messages
 )
 
 # Generate messages in the 'msg' folder
@@ -33,7 +34,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES rags_ros
-  CATKIN_DEPENDS geometry_msgs move_base amcl roscpp rospy message_runtime std_msgs
+  CATKIN_DEPENDS geometry_msgs move_base amcl roscpp rospy message_runtime std_msgs custom_messages
   DEPENDS system_lib
 )
 
@@ -45,15 +46,19 @@ include_directories(
 add_executable(rags_planner src/rags_planner.cpp)
 target_link_libraries(rags_planner ${catkin_LIBRARIES})
 add_dependencies(rags_planner ${catkin_EXPORTED_TARGETS})
+add_dependencies(rags_planner ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 add_executable(edge_cost_publisher src/edge_cost_publisher.cpp)
 target_link_libraries(edge_cost_publisher ${catkin_LIBRARIES})
 add_dependencies(edge_cost_publisher ${catkin_EXPORTED_TARGETS})
+add_dependencies(edge_cost_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 add_executable(speed_regulator src/speed_regulator.cpp)
 target_link_libraries(speed_regulator ${catkin_LIBRARIES})
 add_dependencies(speed_regulator ${catkin_EXPORTED_TARGETS})
+add_dependencies(speed_regulator ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 add_executable(rags_planner_dji src/rags_planner_dji.cpp)
 target_link_libraries(rags_planner_dji ${catkin_LIBRARIES})
 add_dependencies(rags_planner_dji ${catkin_EXPORTED_TARGETS})
+add_dependencies(rags_planner_dji ${${PROJECT_NAME}_EXPORTED_TARGETS})
